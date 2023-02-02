@@ -1,17 +1,40 @@
 ﻿using System;
 
-namespace Calculator
+namespace CalculatorWithLogger
 {
-    interface ICalculator
+    public interface ICalculator
     {
-        double Add(double a, double b);
+        int Sum(int a, int b);
     }
 
-    class Calculator : ICalculator
+    public class Calculator : ICalculator
     {
-        public double Add(double a, double b)
+        public int Sum(int a, int b)
         {
             return a + b;
+        }
+    }
+
+    public interface ILogger
+    {
+        void Event(string message);
+        void Error(string message);
+    }
+
+    public class Logger : ILogger
+    {
+        public void Event(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("Event: " + message);
+            Console.ResetColor();
+        }
+
+        public void Error(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Error: " + message);
+            Console.ResetColor();
         }
     }
 
@@ -19,32 +42,34 @@ namespace Calculator
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("This calculator will get the sum of two entered numbers.\nEnter the first number:");
-            string firstNumber = Console.ReadLine();
-
-            Console.WriteLine("Enter the second number:");
-            string secondNumber = Console.ReadLine();
-
             ICalculator calculator = new Calculator();
+            ILogger logger = new Logger();
 
-            try
+            while (true)
             {
-                double a = Convert.ToDouble(firstNumber);
-                double b = Convert.ToDouble(secondNumber);
-                double result = calculator.Add(a, b);
+                Console.WriteLine("Enter first number:");
+                string input1 = Console.ReadLine();
+                int a;
 
-                Console.WriteLine("The result is: " + result);
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine("[INFO] The result of adding {0} and {1} is {2}", a, b, result);
-                Console.ResetColor();
-            }
-            catch (FormatException)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("[ERROR] Invalid input, only numbers are allowed.");
-                Console.ResetColor();
+                Console.WriteLine("Enter second number:");
+                string input2 = Console.ReadLine();
+                int b;
+
+                try
+                {
+                    a = int.Parse(input1);
+                    b = int.Parse(input2);
+                }
+                catch (FormatException)
+                {
+                    logger.Error("Invalid input format. Input must be an integer.");
+                    continue;
+                }
+
+                int sum = calculator.Sum(a, b);
+                Console.WriteLine("Sum: " + sum);
+                logger.Event("The sum of " + a + " and " + b + " is " + sum);
             }
         }
     }
 }
-
